@@ -29,4 +29,20 @@ public class FilesController(IFileService fileService) : ControllerBase
 
         return Created();
     }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> Download([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var (fileContent, contentType, fileName) = await _fileService.DownloadAsync(id, cancellationToken);
+
+        return fileContent is [] ? NotFound() : File(fileContent, contentType, fileName);
+    }
+
+    [HttpGet("stream/{id}")]
+    public async Task<IActionResult> Stream([FromRoute] Guid id, CancellationToken cancellationToken)
+    {
+        var (stream, contentType, fileName) = await _fileService.StreamAsync(id, cancellationToken);
+
+        return stream is null ? NotFound() : File(stream, contentType, fileName, enableRangeProcessing: true);
+    }
 }

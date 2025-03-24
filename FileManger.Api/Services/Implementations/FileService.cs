@@ -42,7 +42,36 @@ public class FileService(IWebHostEnvironment webHostEnvironment, ApplicationDbCo
         using var stream = File.Create(path);
         await image.CopyToAsync(stream, cancellationToken);
     }
+    public async Task<(byte[] fileContent, string contentType, string fileName)> DownloadAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var file = await _context.Files.FindAsync(id);
 
+        if (file is null)
+            return ([], string.Empty, string.Empty);
+
+        var path = Path.Combine(_filePath, file.StoredFileName);
+
+        MemoryStream memoryStream = new();
+        using FileStream fileStream = new(path, FileMode.Open);
+        fileStream.CopyTo(memoryStream);
+
+        memoryStream.Position = 0;
+
+        return (memoryStream.ToArray(), file.ContentType, file.FileName);
+    }
+    public async Task<(FileStream? stream, string contentType, string fileName)> StreamAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        var file = await _context.Files.FindAsync(id);
+
+        if (file is null)
+            return (null, string.Empty, string.Empty);
+
+        var path = Path.Combine(_filePath, file.StoredFileName);
+
+        var fileStream = File.OpenRead(path);
+
+        return (fileStream, file.ContentType, file.FileName);
+    }
 
     private async Task<UplodedFile> SaveFile(IFormFile file, CancellationToken cancellationToken = default)
     {
