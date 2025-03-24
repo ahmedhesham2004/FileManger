@@ -1,4 +1,6 @@
 using FileManger.Api.Persistence;
+using FluentValidation.AspNetCore;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,6 +17,11 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString)
 );
 
+builder.Services
+    .AddFluentValidationAutoValidation()
+    .AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+
+builder.Services.AddScoped<IFileService, FileService>();    
 
 var app = builder.Build();
 
@@ -30,4 +37,10 @@ app.UseAuthorization();
 
 app.MapControllers();
 
-app.Run();
+//Before .Net 9
+//app.UseStaticFiles();
+
+//After .Net 9  optemize file
+app.MapStaticAssets();
+
+app.Run();;
