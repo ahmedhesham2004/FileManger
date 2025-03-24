@@ -12,7 +12,7 @@ public class FilesController(IFileService fileService) : ControllerBase
     public async Task<IActionResult> Upload([FromForm] UploadFileRequest request, CancellationToken cancellationToken)
     {
         var fileId = await _fileService.UploadAsync(request.File, cancellationToken);
-        return Ok(fileId);  
+        return CreatedAtAction(nameof(Download), new {id = fileId}, null);  
     }
 
     [HttpPost("")]
