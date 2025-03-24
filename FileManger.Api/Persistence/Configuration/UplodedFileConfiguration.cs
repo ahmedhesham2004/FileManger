@@ -14,7 +14,7 @@ public class UplodedFileConfiguration : IEntityTypeConfiguration<UplodedFile>
             .Property(f => f.ContentType)
             .HasMaxLength(50);
         builder
-            .Property(f => f.FileExtenstion)
+            .Property(f => f.FileExtension)
             .HasMaxLength(10);
 
     }
